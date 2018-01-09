@@ -1,6 +1,6 @@
 import React from 'react'
 
-Header = props=>{
+const Header = props=>{
     return(
         <div>
         <button onClick={props.addNewItem}>Dodaj</button>
