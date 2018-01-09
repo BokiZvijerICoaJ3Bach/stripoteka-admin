@@ -9,7 +9,7 @@ class App extends Component {
     return (
       <div className="App">
       <Header/>
-      <Input password="kjkszpj"/>
+      <Input password={"kjkszpj"}/>
       </div>
     );
   }
