@@ -2,38 +2,46 @@ import React from 'react'
 import _ from 'lodash'
 import axios from 'axios'
 
-const imgs=[]
-const slike=[]
+let imgs=[]
+let slike=[]
 
 class Input extends React.Component{
-    state={slike:[]}
+    state={grupa: "", podgrupa: "", ime: "", naslov: "",
+    opis: "", izdavac: "", cena: 0, broj: 0, ocuvanost: 0, slike:[]}
     readFiles(e){
       for (let i = 0; i<e.target.files.length; i++)
       {
         this.uploadFile.bind(this)(e.target.files[i])
     }
 }
-    componentWillReceiveProps(nextProps){
-        this.setState(nextProps)
+    componentDidMount(){
+        const { match: { params } } = this.props;
+      if(params.ID){
+        axios.get(`https://sleepy-beach-98711.herokuapp.com/api/item/${params.ID}`)
+          .then((response) => {
+      
+            this.setState(response.data);
+            imgs=[...this.state.slike]
+            slike=[...this.state.slike]
+            this.setState({thumbs: [...this.state.slike]})
+          });}
     }
-    remove(thumb){
-        const slika = this.state.thumbs.indexOf(thumb)
-        console.log(slika)
+    remove(slika){
         imgs.splice(slika, 1)
         slike.splice(slika, 1)
-        this.setState({thumbs: _.without(this.state.thumbs, thumb)})
-        this.setState({slike: this.state.slike.filter((s, i)=>i!== slika)})
+        this.setState({thumbs: imgs})
+        this.setState({slike})
     }
     submit(e){
         e.preventDefault()
         if(this.state.ID){
             axios.put("https://sleepy-beach-98711.herokuapp.com/api/update", this.state, {
-                headers: {"Access-Control-Allow-Origin": "*"},auth:{password:this.state.password}}).then(r=>console.log(r))
+                headers: {"Access-Control-Allow-Origin": "*"},auth:{password:this.props.password}}).then(r=>console.log(r))
         }
         else{
 
             axios.post("https://sleepy-beach-98711.herokuapp.com/api/additem", this.state, {
-                headers: {"Access-Control-Allow-Origin": "*"},auth:{password:this.state.password}}).then(r=>console.log(r))
+                headers: {"Access-Control-Allow-Origin": "*"},auth:{password:this.props.password}}).then(r=>console.log(r))
         }
     }
     cloudName="dcmifddlf"
@@ -80,15 +88,15 @@ class Input extends React.Component{
     return(
         <div>
         <form onSubmit={this.submit.bind(this)}>
-        <input type="text" placeholder="grupa" onChange={e=>this.setState({grupa: e.target.value})}/>
-        <input type="text" placeholder="podgrupa" onChange={e=>this.setState({podgrupa: e.target.value})}/>
-        <input type="text" placeholder="ime" onChange={e=>this.setState({ime: e.target.value})}/>
-        <input type="text" placeholder="izdavac" onChange={e=>this.setState({izdavac: e.target.value})}/>
-        <input type="text" placeholder="naslov" onChange={e=>this.setState({naslov: e.target.value})}/>
-        <input type="text" placeholder="opis" onChange={e=>this.setState({opis: e.target.value})}/>
-        <input type="number" placeholder="cena" onChange={e=>this.setState({cena: e.target.value})}/>
-        <input type="number" placeholder="broj" onChange={e=>this.setState({broj: e.target.value})}/>
-        <input type="number" placeholder="ocuvanost" onChange={e=>this.setState({ocuvanost: e.target.value})}/>//ocuvanost ti ide od 1 do 5, stavi neki dropdown ili neka govna ako ti je lakse, i obrisi ovaj tekst ne znam kako se pisu komentari u jsx faking
+        <input type="text" placeholder="grupa" value={this.state.grupa} onChange={e=>this.setState({grupa: e.target.value})}/>
+        <input type="text" placeholder="podgrupa" value={this.state.podgrupa} onChange={e=>this.setState({podgrupa: e.target.value})}/>
+        <input type="text" placeholder="ime" value={this.state.ime} onChange={e=>this.setState({ime: e.target.value})}/>
+        <input type="text" placeholder="izdavac" value={this.state.izdavac} onChange={e=>this.setState({izdavac: e.target.value})}/>
+        <input type="text" placeholder="naslov" value={this.state.naslov} onChange={e=>this.setState({naslov: e.target.value})}/>
+        <input type="text" placeholder="opis" value={this.state.opis} onChange={e=>this.setState({opis: e.target.value})}/>
+        <input type="number" placeholder="cena" value={this.state.cena} onChange={e=>this.setState({cena: e.target.value})}/>
+        <input type="number" placeholder="broj" value={this.state.broj} onChange={e=>this.setState({broj: e.target.value})}/>
+        <input type="number" placeholder="ocuvanost" value={this.state.ocuvanost} onChange={e=>this.setState({ocuvanost: e.target.value})}/>//ocuvanost ti ide od 1 do 5, stavi neki dropdown ili neka govna ako ti je lakse, i obrisi ovaj tekst ne znam kako se pisu komentari u jsx faking
         <input type="file" multiple onChange={this.readFiles.bind(this)}/>
         <div style={{...this.progressBarStyle,
             width: "200px",
@@ -96,8 +104,8 @@ class Input extends React.Component{
             height: "8px",
             marginTop: "4px"}}><div style={{width:this.state.width, ...this.progressBarStyle}}></div></div>
         {this.state.thumbs?
-            this.state.thumbs.map(slika=>
-            <img key = {slika} onClick={()=>{this.remove(slika)}} src={slika} alt={this.state.naslov}/>)
+            this.state.thumbs.map((slika, index)=>
+            <img key = {index} onClick={()=>{this.remove(index)}} src={slika} alt={this.state.naslov}/>)
             :null
         }
         <button type="submit">Submit</button>

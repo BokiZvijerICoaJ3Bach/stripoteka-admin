@@ -1,15 +1,24 @@
 import React from 'react'
+import Cart from './Cart'
+import axios from 'axios'
 
-const Carts = props=>{
+class Carts extends React.Component{
+    state={items: []}
+    updateItems(d){
+        if(d instanceof Array){
+        this.setState({items: d})
+        }
+        console.log(d)
+    }
+    componentDidMount(){
+        axios.get("https://sleepy-beach-98711.herokuapp.com/api/getcarts", null, {auth: {password: this.props.password}}).then(r=>this.updateItems(r.data))
+    }
+    render(){
     return(
         <div>
-        <p>{}props.ID</p>
-        <p>{props.ime}</p>
-        <p>{props.naslov}</p>
-        <button onClick={props.approve}>Prihvati Narudzbu</button>
-        <button onClick={props.decline}>Prihvati Narudzbu</button>
+        {this.state.items.map(item=><Cart password={this.props.password} key={item.kontakt} kontakt={item.kontakt} items={item.itemi}/>)}
         </div>
-    )
+    )}
 }
 
 export default Carts
